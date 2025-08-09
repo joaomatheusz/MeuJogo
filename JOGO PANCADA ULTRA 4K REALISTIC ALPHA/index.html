@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Battle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="uiContainer">
+        <div>
+            <p>Score: <span id="scoreEl">0</span></p>
+            <p id="powerUpStatus">Tiro Triplo Ativo!</p>
+        </div>
+        <div>
+            <p id="highScoreEl">Recorde: 0</p>
+        </div>
+        <div id="modalEl">
+            <div class="modal-content">
+                <h1 id="bigScoreEl">0</h1>
+                <p>Pontos</p>
+                <button id="startGameBtn">Iniciar Jogo</button>
+            </div>
+        </div>
+    </div>
+    
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="game.js"></script>
+</body>
+</html>
