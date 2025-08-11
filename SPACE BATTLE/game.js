@@ -8,6 +8,7 @@ const elementoStatusPowerUp = document.getElementById('powerUpStatus');
 const containerUI = document.getElementById('uiContainer');
 const elementoRecorde = document.getElementById('highScoreEl');
 const labelPontos = document.getElementById('labelPontos');
+const instructions = document.getElementById('instructions');
 
 const somDeTiro = new Audio('laser.wav');
 
@@ -314,16 +315,6 @@ class Asteroide {
         this.desenhar();
         this.x += this.velocidade.x;
         this.y += this.velocidade.y;
-
-        if (Math.random() < 0.5) {
-            const raioParticula = Math.random() * 3 + 1;
-            const corParticula = `hsl(${Math.random() * 60}, 100%, 50%)`; 
-            const velocidadeParticula = {
-                x: (Math.random() - 0.5) * 0.8 - this.velocidade.x * 0.2,
-                y: (Math.random() - 0.5) * 0.8 - this.velocidade.y * 0.2
-            };
-            particulas.push(new Particula(this.x, this.y, raioParticula, corParticula, velocidadeParticula));
-        }
     }
 }
 
