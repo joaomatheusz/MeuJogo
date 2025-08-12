@@ -8,9 +8,8 @@ const elementoStatusPowerUp = document.getElementById('powerUpStatus');
 const containerUI = document.getElementById('uiContainer');
 const elementoRecorde = document.getElementById('highScoreEl');
 const labelPontos = document.getElementById('labelPontos');
-const instructions = document.getElementById('instructions');
 
-const somDeTiro = new Audio('laser.wav');
+const somDeTiro = new Audio('sounds/laser.wav');
 
 const menuPausa = document.createElement('div'); 
 menuPausa.id = 'pauseMenu';
@@ -315,6 +314,16 @@ class Asteroide {
         this.desenhar();
         this.x += this.velocidade.x;
         this.y += this.velocidade.y;
+
+        if (Math.random() < 0.5) {
+            const raioParticula = Math.random() * 3 + 1;
+            const corParticula = `hsl(${Math.random() * 60}, 100%, 50%)`; 
+            const velocidadeParticula = {
+                x: (Math.random() - 0.5) * 0.8 - this.velocidade.x * 0.2,
+                y: (Math.random() - 0.5) * 0.8 - this.velocidade.y * 0.2
+            };
+            particulas.push(new Particula(this.x, this.y, raioParticula, corParticula, velocidadeParticula));
+        }
     }
 }
 
@@ -329,21 +338,7 @@ const teclas = {
     s: { pressionada: false }, d: { pressionada: false },
 };
 
-function iniciar() { 
-    jogador = new Jogador(canvas.width / 2, canvas.height / 2);
-    projeteis = []; inimigos = []; particulas = []; asteroides = []; 
-    powerUps = []; projeteisInimigos = [];
-    pontuacao = 0; 
-    elementoPontuacao.textContent = pontuacao; 
-    elementoPontuacaoGrande.textContent = pontuacao;
-    nivelDificuldade = 1;
-    taxaGerarInimigos = 1800;
-    taxaGerarAsteroides = 5000;
-    jogoPausado = false;
-    recorde = localStorage.getItem('spaceBattleHighScore') || 0;
-    elementoRecorde.textContent = `Recorde: ${recorde}`;
-}
-
+    
 function gerarObjetos() { 
     clearInterval(idIntervaloGerarInimigos); 
     clearInterval(idIntervaloGerarAsteroides);
@@ -351,7 +346,8 @@ function gerarObjetos() {
 
     function gerarInimigo() { 
         if (jogoPausado) return;
-        const raio = Math.random() * (30 - 8) + 8; let x, y;
+        const raio = Math.random() * (30 - 8) + 8; 
+        let x, y;
         if (Math.random() < 0.5) { x = Math.random() < 0.5 ? 0 - raio : canvas.width + raio; 
             y = Math.random() * canvas.height; } else { x = Math.random() * canvas.width; 
             y = Math.random() < 0.5 ? 0 - raio : canvas.height + raio; 
