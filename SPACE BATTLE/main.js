@@ -1,4 +1,141 @@
-const canvas = document.getElementById('gameCanvas');
+import * as THREE from 'three';
+
+    const playButton = document.querySelector('.startBtn');
+    const menu = document.querySelector('.menu-inicial');
+
+    const menuContainer = document.getElementById('menuContainer');
+    const gameContainer = document.getElementById('gameContainer');
+
+        const clock = new THREE.Clock();
+
+        let isAccelering = false;
+
+        //cria o nosso palco, a nossa cena
+        const scene = new THREE.Scene();
+
+        //cria a nossa camera
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.z = 1;
+        camera.rotation.x = Math.PI / 2;
+
+        //contratamos o nosso "desenhista"
+        const renderer = new THREE.WebGLRenderer({ antialias: true});
+        //dizemos que o desenhista tem a tela toda para desenhar
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        //pregamos a parede de desenho do nosso desenhista ao body para que possamos ver
+        document.getElementById('menu-background').appendChild(renderer.domElement);
+
+        //função para criar o loop de animação
+        const starGeo = new THREE.BufferGeometry();
+        const starVertices = [];
+
+        for (let i = 0; i < 6000; i++) {
+            const x = (Math.random() - 0.5) * 2000;
+            const y = (Math.random() - 0.5) * 2000;
+            const z = (Math.random() - 0.5) * 2000;
+            starVertices.push(x, y, z);
+        }
+
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+
+        let sprite = new THREE.TextureLoader().load('imgs/star.png');
+        let starMaterial = new THREE.PointsMaterial ({
+            color: 0xaaaaaa,
+            size: 1.5,
+            map: sprite
+        });
+
+        const stars = new THREE.Points(starGeo, starMaterial);
+        scene.add(stars);
+
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        let speed = 80;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            //dizemos: desenhista, quero que desenhe um quadro do nosso palco scene visto pela nossa camera
+            //cria o loop quando o navegador estiver pronto
+            
+            if (isAccelering) {
+                speed += speed * 0.7 * delta;
+
+                if (camera.fov < 125) {
+                    camera.fov += 40 * delta;
+                    camera.updateProjectionMatrix();
+                }
+            }
+            
+            stars.rotation.y += 0.05 * delta;
+
+            const positions = starGeo.attributes.position.array;
+            
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i + 1] -= speed * delta;
+                
+                if (positions[i + 1] < -200) {
+                    positions[i + 1] = 200;
+                }
+            }
+            
+            starGeo.attributes.position.needsUpdate = true;
+            
+            renderer.render(scene, camera);
+        }
+
+        const teleportSound = new Audio('sounds/teleporte.mp3');
+
+
+        playButton.addEventListener('click', () => {
+            menu.classList.add('fade-out');
+        });
+
+        menu.addEventListener('transitionend', (e) => {
+
+            if (e.propertyName !== 'opacity') return;
+
+
+            setTimeout(() => {
+
+                teleportSound.play();
+    
+                isAccelering = true;
+    
+                setTimeout(() => {
+                    menuContainer.classList.add('fade-out-fast');
+
+                    gameContainer.style.display = 'block';
+                    gameContainer.style.opacity = 0;
+
+                    setTimeout(() => {
+                        gameContainer.classList.add('fade-in-fast');
+                    }, 10);
+
+                    iniciar();
+
+                    setTimeout(() => {
+                    menuContainer.remove();
+                }, 500);
+
+                }, 2100);
+            }, 2000);
+
+        }, {once: true });
+
+        //chamamos a função animate
+        animate();
+
+
+
+
+        const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const elementoPontuacao = document.getElementById('scoreEl'); 
 const elementoModal = document.getElementById('modalEl'); 
@@ -68,35 +205,36 @@ class Jogador {
     }
 
     desenhar() { 
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angulo);
-        ctx.beginPath();
-        ctx.moveTo(0, -this.raio);
-        ctx.lineTo(-this.raio * 0.8, this.raio * 0.8);
-        ctx.lineTo(this.raio * 0.8, this.raio * 0.8);
-        ctx.closePath();
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angulo);
+    ctx.beginPath();
+    ctx.moveTo(0, -this.raio);
+    ctx.lineTo(-this.raio * 0.8, this.raio * 0.8);
+    ctx.lineTo(this.raio * 0.8, this.raio * 0.8);
+    ctx.closePath();
 
-        if (this.invencivel) {
-            ctx.strokeStyle = 'white';
-            ctx.fillStyle = 'white';
-            ctx.fill();
-        } else {
-            ctx.strokeStyle = this.cor;
-        }
-
-        ctx.stroke();
-        ctx.restore();  
-
-
-        if (this.escudoAtivo) {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.raio + 5, 0, Math.PI * 2, false);
-            ctx.strokeStyle = 'rgba(52, 152, 219, 0.8)';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-        }
+    // Decide a cor ANTES de desenhar
+    if (this.invencivel) {
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'white';
+        ctx.fill(); // Preenche a nave de branco
+    } else {
+        ctx.strokeStyle = this.cor;
     }
+    
+    ctx.stroke(); // Desenha o contorno (branco ou na cor normal)
+    ctx.restore(); // Restaura o contexto UMA VEZ
+
+    // Desenha o escudo por cima, se estiver ativo
+    if (this.escudoAtivo) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.raio + 5, 0, Math.PI * 2, false);
+        ctx.strokeStyle = 'rgba(52, 152, 219, 0.8)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+}
 
     atualizar() { 
 
@@ -367,39 +505,10 @@ class Asteroide {
             particulas.push(new Particula(this.x, this.y, raioParticula, corParticula, velocidadeParticula));
         }
     }
-
-
-}
-
-class Moeda {
-    constructor(x, y){
-        this.x = x;
-        this.y = y;
-        this.raio = 7;
-        this.velocidade = { x: (Math.random() - 0.5) * 2, y: (Math.random() - 0.5) *2 };
-        this.atrito = 0.97;
-        this.cor = '#f1c40f';
-    }
-
-    desenhar() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.raio, 0, Math.PI * 2, false);
-        ctx.fillStyle = this.cor;
-        ctx.fill();
-    }
-
-    atualizar() {
-        this.desenhar();
-        this.velocidade.x *= this.atrito;
-        this.velocidade.y *= this.atrito;
-        this.x += this.velocidade.x;
-        this.y += this.velocidade.y;
-    }
 }
 
 let jogador, projeteis, inimigos, particulas, asteroides, powerUps, projeteisInimigos; 
 let pontuacao, idAnimacao, recorde; 
-let moedas, moedasColetadas;
 let nivelDificuldade, taxaGerarInimigos, taxaGerarAsteroides; 
 let idIntervaloGerarInimigos, idIntervaloGerarAsteroides, idIntervaloGerarPowerUp; 
 let jogoPausado = false; 
@@ -507,22 +616,23 @@ function iniciar() {
     particulas = [];
     asteroides = [];
     powerUps = [];
-    moedas = [];
     projeteisInimigos = [];
     pontuacao = 0;
     elementoPontuacao.innerHTML = pontuacao;
 
+    // Remove a necessidade de clicar no botão "Start"
     elementoModal.style.display = 'none';
 
     jogoAtivo = true;
 
+    // Dificuldade inicial
     nivelDificuldade = 1;
     taxaGerarInimigos = 1800;
     taxaGerarAsteroides = 5000;
 
     gerarObjetos();
 
-
+    // Redefine as teclas para evitar bugs de persistência
     for (const tecla in teclas) {
         teclas[tecla].pressionada = false;
     }
@@ -591,17 +701,6 @@ function animar() {
         } 
     });
 
-    moedas.forEach((moeda, index) => {
-        moeda.atualizar();
-        const dist = Math.hypot(jogador.x - moeda.x, jogador.y - moeda.y);
-
-        if (dist - jogador.raio - moeda.raio < 1) {
-            moedasColetadas++;
-
-            moedas.splice(index, 1);
-        }
-    })
-
     for (let indiceInimigo = inimigos.length - 1; indiceInimigo >= 0; indiceInimigo--) {
         const inimigo = inimigos[indiceInimigo];
         if (!inimigo) continue;
@@ -651,11 +750,6 @@ function animar() {
                     pontuacao += pontos;
                     
                     if (inimigo instanceof InimigoDivisor) inimigo.dividir();
-
-                    if (Math.random() < 0.2) {
-                        moedas.push(new Moeda(inimigo.x, inimigo.y));
-                    }
-
                     inimigos.splice(indiceInimigo, 1);
                 }
                 
@@ -693,8 +787,10 @@ function animar() {
     }
 }
 
+// Encontre sua função finalizarJogo() e substitua-a por esta
 
 function finalizarJogo() {
+    // Cria a explosão do jogador ANTES de parar a animação
     for (let i = 0; i < jogador.raio * 2; i++) {
         particulas.push(new Particula(jogador.x, jogador.y, Math.random() * 2, jogador.cor, {
             x: (Math.random() - 0.5) * (Math.random() * 8),
@@ -702,18 +798,17 @@ function finalizarJogo() {
         }));
     }
 
+    // Esconde o jogador para que apenas a explosão seja visível
     jogador.raio = 0;
 
+    // Para o jogo e mostra o menu de Game Over APÓS um pequeno atraso
     setTimeout(() => {
         jogoAtivo = false;
         cancelAnimationFrame(idAnimacao);
-        idAnimacao = null;
+        idAnimacao = null; // Limpa o ID da animação
         clearInterval(idIntervaloGerarInimigos);
         clearInterval(idIntervaloGerarAsteroides);
         clearInterval(idIntervaloGerarPowerUp);
-
-        const totalMoedas = parseInt(localStorage.getItem('spaceBattleCoins')) || 0;
-        localStorage.setItem('spaceBattleCoins', totalMoedas + moedasColetadas);
 
         if (pontuacao > recorde) {
             recorde = pontuacao;
@@ -729,9 +824,9 @@ function finalizarJogo() {
         const botaoReiniciarJogo = document.getElementById('restartGameBtn');
         botaoReiniciarJogo.addEventListener('click', () => {
             iniciar();
-        }, { once: true }); 
+        }, { once: true }); // Adiciona { once: true } para evitar múltiplos listeners
 
-    }, 500);
+    }, 500); // Atraso de 0.5 segundos para a animação de morte
 }
 
 function ativarPowerUp(tipo) {
@@ -794,5 +889,3 @@ window.addEventListener('resize', () => { canvas.width = innerWidth; canvas.heig
 
 elementoPontuacaoGrande.style.display = 'none';
 labelPontos.style.display = 'none';
-
-iniciar();

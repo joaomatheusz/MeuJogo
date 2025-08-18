@@ -2,6 +2,7 @@
 
 * {
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
     font-family: 'Press Start 2P', sans-serif;
 }
@@ -104,4 +105,14 @@ color: white;
 .menu-inicial.fade-out {
     opacity: 0;
     transition: opacity 1.5s linear;
+}
+
+.fade-out-fast {
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+}
+
+.fade-in-fast {
+    opacity: 1 !important;
+    transition: opacity 0.5s ease-out;
 }

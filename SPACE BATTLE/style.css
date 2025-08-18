@@ -7,6 +7,7 @@
 
 body {
     margin: 0;
+    padding: 0;
     background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
     display: flex;
     align-items: center;
@@ -40,7 +41,7 @@ body {
 }
 
 #modalEl {
-    display: flex;
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -64,6 +65,17 @@ body {
     max-height: 400px;
     backdrop-filter: blur(4px); 
     z-index: 30;
+}
+
+
+.icon {
+    background-color: transparent;
+    border: 2px solid rgb(255, 255, 255, 0.5);
+    backdrop-filter: blur(1.5rem);
+    border-radius: 8px;
+}
+.icon:hover {
+    background-color: #282f37;
 }
 
 #bigScoreEl {

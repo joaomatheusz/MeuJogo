@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Space Battle</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -17,20 +18,17 @@
         </div>
     </div>
 
-    <div id="modalEl">
+    <div id="modalEl" style="display: none;">
         <div class="modal-content">
             <img id="logo-img" src="SPAAAACE.png">
     
-            <h1 id="bigScoreEl">0</h1>
-            <p id="labelPontos">Pontos</p>
-    
-            <div class="instructions">
-                <p><span>W, A, S, D</span> para mover</p>
-                <p><span>MOUSE</span> para mirar</p>
-                <p><span>CLIQUE</span> para atirar</p>
+                <h1 id="bigScoreEl">0</h1>
+                <p id="labelPontos">Pontos</p>
+            
+            <div class="btnContainer">
+                <button id="restartGameBtn">PLAY AGAIN</button>
+                <button class="icon"><i class='bx bxs-cart' style='color:#ffffff'  ></i></button>
             </div>
-
-            <button id="startGameBtn">Iniciar Jogo</button>
         </div>
     </div>
     

@@ -32,7 +32,9 @@
         //importa as ferramentas da three.js
         import * as THREE from 'three';
 
-        let isAcelering = false;
+        const clock = new THREE.Clock();
+
+        let isAccelering = false;
 
         //cria o nosso palco, a nossa cena
         const scene = new THREE.Scene();
@@ -79,30 +81,39 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        let speed = 0.1;
+        let speed = 80;
 
         function animate() {
-            //dizemos: desenhista, quero que desenhe um quadro do nosso palco scene visto pela nossa camera
-            renderer.render(scene, camera);
-            //cria o loop quando o navegador estiver pronto
             requestAnimationFrame(animate);
-    
-            if (isAcelering) {
-                speed += 0.015;
+
+            const delta = clock.getDelta();
+            //dizemos: desenhista, quero que desenhe um quadro do nosso palco scene visto pela nossa camera
+            //cria o loop quando o navegador estiver pronto
+            
+            if (isAccelering) {
+                speed += speed * 0.7 * delta;
+
+                if (camera.fov < 125) {
+                    camera.fov += 40 * delta;
+                    camera.updateProjectionMatrix();
+                }
             }
             
-            stars.rotation.y += 0.0002;
+            stars.rotation.y += 0.05 * delta;
+
             const positions = starGeo.attributes.position.array;
-    
+            
             for (let i = 0; i < positions.length; i += 3) {
-                positions[i + 1] -= speed;
-    
+                positions[i + 1] -= speed * delta;
+                
                 if (positions[i + 1] < -200) {
                     positions[i + 1] = 200;
                 }
             }
-    
+            
             starGeo.attributes.position.needsUpdate = true;
+            
+            renderer.render(scene, camera);
         }
 
         const playButton = document.querySelector('.startBtn');
@@ -123,7 +134,7 @@
 
                 teleportSound.play();
     
-                isAcelering = true;
+                isAccelering = true;
     
                 setTimeout(() => {
                     window.location.href = 'index.html';
